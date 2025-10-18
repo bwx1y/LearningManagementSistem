@@ -16,4 +16,6 @@ public class Module
 
     public required Guid CourseId { get; set; }
     public virtual Course Course { get; set; } = null!;
+    
+    public virtual ICollection<Quiz> Quizze { get; set; } = new List<Quiz>();
 }

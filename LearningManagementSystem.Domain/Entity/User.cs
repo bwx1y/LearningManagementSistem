@@ -17,4 +17,5 @@ public class User
     [DefaultValue(Role.Student)] public Role Role { get; set; } = Role.Student;
 
     public virtual ICollection<Course> CoursesTaught { get; set; } = new List<Course>();
+    public virtual ICollection<Enrollment> Enrollment { get; set; } = new List<Enrollment>();
 }
