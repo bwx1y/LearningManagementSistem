@@ -60,6 +60,16 @@ using (var scope = app.Services.CreateScope())
     var db  = scope.ServiceProvider.GetRequiredService<LmsDbContext>();
 
     db.Database.EnsureCreated();
+
+    if (app.Environment.IsDevelopment())
+    {
+        db.User.Add(new User
+        {
+            Email = "admin@gmail.com",
+            Name = "Admin",
+            Password = "admin"
+        });
+    }
 }
 
 app.Run();

@@ -1,5 +1,6 @@
 using LearningManagementSystem.Api.Extention;
 using LearningManagementSystem.Application.DTO.Auth;
+using LearningManagementSystem.Application.Interface;
 using LearningManagementSystem.Application.Service;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,7 +8,7 @@ namespace LearningManagementSystem.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuthController(AuthService authService) : ControllerBase
+public class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)

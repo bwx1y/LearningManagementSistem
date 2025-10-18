@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace LearningManagementSystem.Api.Extention;
 
@@ -12,18 +13,17 @@ public static class ControllerExtensions
         string title = "Terjadi kesalahan",
         string detail = "")
     {
-        var errors = new Dictionary<string, string[]>
-        {
-            { key, new[] { message } }
-        };
+        // Buat ModelStateDictionary
+        var modelState = new ModelStateDictionary();
+        modelState.AddModelError(key, message);
 
-        var problemDetails = new ValidationProblemDetails(errors)
-        {
-            Status = statusCode,
-            Title = title,
-            Detail = detail
-        };
-
-        return controller.ValidationProblem(problemDetails);
+        // Panggil overload ValidationProblem yang ada
+        return controller.ValidationProblem(
+            detail: detail,
+            statusCode: statusCode,
+            title: title,
+            modelStateDictionary: modelState
+        );
     }
+
 }
