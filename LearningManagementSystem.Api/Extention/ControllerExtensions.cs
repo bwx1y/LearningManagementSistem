@@ -11,7 +11,7 @@ public static class ControllerExtensions
         string message,
         int statusCode = StatusCodes.Status400BadRequest,
         string title = "Terjadi kesalahan",
-        string detail = "")
+        string detail = "invalid credentials")
     {
         // Buat ModelStateDictionary
         var modelState = new ModelStateDictionary();
