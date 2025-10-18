@@ -25,8 +25,10 @@ public class AuthService(LmsDbContext context, IConfiguration configuration): IA
         if (key == null || duration == 0 || hoursToExpire == 0) return null;
         
         var token = findUser.GenerateToken(key, hoursToExpire);
+        
         var response = findUser.Adapt<LoginResponse>();
         response.Token = token;
+        response.Role =  findUser.Role.ToString();
         
         return response;
     }
