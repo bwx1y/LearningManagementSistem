@@ -1,5 +1,9 @@
 using LearningManagementSystem.Api.Configuration;
+using LearningManagementSystem.Api.Extention;
+using LearningManagementSystem.Domain.Entity;
+using LearningManagementSystem.Domain.Enum;
 using LearningManagementSystem.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +22,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AdaptApplicationServices();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
 

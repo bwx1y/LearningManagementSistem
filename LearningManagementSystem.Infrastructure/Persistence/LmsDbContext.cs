@@ -5,14 +5,14 @@ namespace LearningManagementSystem.Infrastructure.Persistence;
 
 public class LmsDbContext(DbContextOptions<LmsDbContext> options) : DbContext(options)
 {
-    public DbSet<User> Users { get; set; }
-    public DbSet<Course> Courses { get; set; }
-    public DbSet<Enrollment> Enrollments { get; set; }
-    public DbSet<Module> Modules { get; set; }
-    public DbSet<Quiz> Quizzes { get; set; }
-    public DbSet<Choice> Choices { get; set; }
-    public DbSet<QuizAttempt> QuizAttempts { get; set; }
-    public DbSet<QuizAnswer> QuizAnswers { get; set; }
+    public DbSet<User> User { get; set; }
+    public DbSet<Course> Course { get; set; }
+    public DbSet<Enrollment> Enrollment { get; set; }
+    public DbSet<Module> Module { get; set; }
+    public DbSet<Quiz> Quiz { get; set; }
+    public DbSet<Choice> Choice { get; set; }
+    public DbSet<QuizAttempt> QuizAttempt { get; set; }
+    public DbSet<QuizAnswer> QuizAnswer { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

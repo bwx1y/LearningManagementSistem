@@ -7,14 +7,17 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Folder Include="DTO\"/>
-        <Folder Include="Interface\"/>
-        <Folder Include="Service\"/>
+        <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
+        <PackageReference Include="Mapster" Version="7.4.0"/>
+        <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1"/>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.21" />
+        <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.14.0" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Mapster" Version="7.4.0"/>
-        <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1"/>
+      <ProjectReference Include="..\LearningManagementSystem.Domain\LearningManagementSystem.Domain.csproj" />
+      <ProjectReference Include="..\LearningManagementSystem.Infrastructure\LearningManagementSystem.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
