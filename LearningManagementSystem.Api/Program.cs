@@ -1,14 +1,37 @@
 using LearningManagementSystem.Api.Configuration;
+using LearningManagementSystem.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddJwtConfiguration(builder.Configuration);
 
+builder.Services.AddDbContext<LmsDbContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+                           "Server=localhost;Database=LearningDB;Trusted_Connection=True;TrustServerCertificate=True;";
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+});
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ConfiguredCorsPolicy", policy =>
+    {
+        if (allowedOrigins != null)
+            policy
+                .WithOrigins(allowedOrigins)
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
@@ -19,9 +42,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("ConfiguredCorsPolicy");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db  = scope.ServiceProvider.GetRequiredService<LmsDbContext>();
+
+    db.Database.EnsureCreated();
+}
 
 app.Run();

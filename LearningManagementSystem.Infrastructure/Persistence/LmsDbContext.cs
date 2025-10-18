@@ -71,5 +71,17 @@ public class LmsDbContext(DbContextOptions<LmsDbContext> options) : DbContext(op
             .HasOne(qa => qa.Quiz)
             .WithMany()
             .HasForeignKey(qa => qa.QuizId);
+        
+        modelBuilder.Entity<Enrollment>()
+            .HasOne(e => e.User)
+            .WithMany(u => u.Enrollment)
+            .HasForeignKey(e => e.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Enrollment>()
+            .HasOne(e => e.Course)
+            .WithMany(c => c.Enrollment)
+            .HasForeignKey(e => e.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
