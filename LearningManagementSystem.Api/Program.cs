@@ -1,5 +1,6 @@
 using LearningManagementSystem.Api.Configuration;
 using LearningManagementSystem.Api.Extention;
+using LearningManagementSystem.Application.Interface;
 using LearningManagementSystem.Domain.Entity;
 using LearningManagementSystem.Domain.Enum;
 using LearningManagementSystem.Infrastructure.Persistence;
@@ -58,17 +59,22 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var db  = scope.ServiceProvider.GetRequiredService<LmsDbContext>();
+    var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
 
     db.Database.EnsureCreated();
 
-    if (app.Environment.IsDevelopment())
+    if (app.Environment.IsDevelopment() && !db.User.Any(f => f.Email == "admin@gmail.com"))
     {
-        db.User.Add(new User
+        Task.Run(async () =>
         {
-            Email = "admin@gmail.com",
-            Name = "Admin",
-            Password = "admin"
-        });
+           await userService.Create(new User
+            {
+                Email = "admin@gmail.com",
+                Name = "Admin",
+                Password = "admin",
+                Role = Role.Admin
+            });
+        }).Wait();
     }
 }
 

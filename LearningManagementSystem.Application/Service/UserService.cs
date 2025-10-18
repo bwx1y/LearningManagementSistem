@@ -11,4 +11,15 @@ public class UserService (LmsDbContext context): IUserService
     {
         return await context.User.FirstOrDefaultAsync(f => f.Id == id);
     }
+
+    public async Task<User> Create(User user)
+    {
+        user.Password = BCrypt.Net.BCrypt.HashPassword(user.Password);
+        
+        var res = await context.User.AddAsync(user);
+        
+        await context.SaveChangesAsync();
+        
+        return res.Entity;
+    }
 }
