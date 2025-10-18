@@ -7,14 +7,14 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="DTO\" />
-      <Folder Include="Interface\" />
-      <Folder Include="Service\" />
+        <Folder Include="DTO\"/>
+        <Folder Include="Interface\"/>
+        <Folder Include="Service\"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Mapster" Version="7.4.0" />
-      <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1" />
+        <PackageReference Include="Mapster" Version="7.4.0"/>
+        <PackageReference Include="Mapster.DependencyInjection" Version="1.0.1"/>
     </ItemGroup>
 
 </Project>

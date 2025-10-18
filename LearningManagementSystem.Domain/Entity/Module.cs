@@ -6,14 +6,14 @@ namespace LearningManagementSystem.Domain.Entity;
 [Table("Module")]
 public class Module
 {
-    [Key]
-    public Guid Id { get; set; } =  Guid.NewGuid();
-    
+    [Key] public Guid Id { get; set; } = Guid.NewGuid();
+
     public required string Title { get; set; }
-    [DataType(DataType.Text)]
-    public required string Content { get; set; }
+
+    [DataType(DataType.Text)] public required string Content { get; set; }
+
     public int Order { get; set; }
-    
+
     public required Guid CourseId { get; set; }
-    public virtual Course Course { get; set; } =  null!;
+    public virtual Course Course { get; set; } = null!;
 }

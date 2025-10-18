@@ -10,9 +10,9 @@ public static class ConJwtExtensions
     {
         var section = configuration.GetSection("JwtSetting");
         services.Configure<JwtConfiguration>(section);
-        
+
         var jwtConfig = section.Get<JwtConfiguration>();
-        
+
         services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -28,10 +28,12 @@ public static class ConJwtExtensions
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtConfig?.Issuer,
                     ValidAudience = jwtConfig?.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig?.Key ?? "10643798633255595206904047492890"))
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(
+                            Encoding.UTF8.GetBytes(jwtConfig?.Key ?? "10643798633255595206904047492890"))
                 };
             });
-        
+
         return services;
     }
 }

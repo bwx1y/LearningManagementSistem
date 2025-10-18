@@ -7,26 +7,26 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="Configuration\" />
-      <Folder Include="Repository\" />
-      <Folder Include="Service\" />
+        <Folder Include="Configuration\"/>
+        <Folder Include="Repository\"/>
+        <Folder Include="Service\"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.21" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.21">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.21">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-      <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.3" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.21"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.21">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.21">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.3"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LearningManagementSystem.Domain\LearningManagementSystem.Domain.csproj" />
+        <ProjectReference Include="..\LearningManagementSystem.Domain\LearningManagementSystem.Domain.csproj"/>
     </ItemGroup>
 
 </Project>
