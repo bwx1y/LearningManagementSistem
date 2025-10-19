@@ -1,5 +1,6 @@
 using LearningManagementSystem.Application.Interface;
 using LearningManagementSystem.Domain.Entity;
+using LearningManagementSystem.Domain.Enum;
 using LearningManagementSystem.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,6 +8,15 @@ namespace LearningManagementSystem.Application.Service;
 
 public class UserService (LmsDbContext context): IUserService
 {
+    public async Task<List<User>> GetAll(Role? role= null, string? search = null)
+    {
+        var query = context.User.AsQueryable();
+        if (role != null) query = query.Where(u => u.Role == role);
+        if (search != null) query = query.Where(u => EF.Functions.Like(u.Email, $"%{search}%"));
+        
+        return await query.ToListAsync();
+    }
+
     public async Task<User?> FindById(Guid id)
     {
         return await context.User.FirstOrDefaultAsync(f => f.Id == id);
