@@ -46,22 +46,36 @@ public class LmsDbContext(DbContextOptions<LmsDbContext> options) : DbContext(op
         // === Relasi Module -> ModuleContent (One-to-Many) ===
         modelBuilder.Entity<ModuleContent>()
             .HasOne(mc => mc.Module)
-            .WithMany(m => m.Content)   // pastikan di Module: public ICollection<ModuleContent> Contents { get; set; }
+            .WithMany(m => m.Content)  
             .HasForeignKey(mc => mc.ModuleId)
-            .OnDelete(DeleteBehavior.Cascade); // kalau module dihapus, kontennya ikut terhapus
+            .OnDelete(DeleteBehavior.Cascade);
 
         // === Relasi ModuleContent -> Quiz (Optional One-to-One) ===
         modelBuilder.Entity<ModuleContent>()
             .HasOne(mc => mc.Quiz)
-            .WithMany() // quiz tidak perlu tahu module content, jadi tanpa navigation
+            .WithMany()
             .HasForeignKey(mc => mc.QuizId)
-            .OnDelete(DeleteBehavior.SetNull); // kalau quiz dihapus, kontennya tetap ada tapi tanpa quiz
+            .OnDelete(DeleteBehavior.SetNull); 
 
         // === Relasi Course -> Module (One-to-Many) ===
         modelBuilder.Entity<Module>()
             .HasOne(m => m.Course)
-            .WithMany(c => c.Module) // pastikan di Course: public ICollection<Module> Modules { get; set; }
+            .WithMany(c => c.Module) 
             .HasForeignKey(m => m.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        // === Relasi ModuleContent -> ModuleContentAnswer (One-to-Many) ===
+        modelBuilder.Entity<ModuleContentAnswer>()
+            .HasOne(a => a.ModuleContent)
+            .WithMany(mc => mc.Answer)
+            .HasForeignKey(a => a.ModuleContentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // === Relasi User -> ModuleContentAnswer (One-to-Many) ===
+        modelBuilder.Entity<ModuleContentAnswer>()
+            .HasOne(a => a.User)
+            .WithMany(u => u.ModuleContentAnswer)
+            .HasForeignKey(a => a.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         // Quiz - Choice => One-to-Many

@@ -25,4 +25,6 @@ public class ModuleContent
     // Relasi ke quiz (kalau tipe == Quiz)
     public Guid? QuizId { get; set; }
     public virtual Quiz? Quiz { get; set; }
+    
+    public virtual ICollection<ModuleContentAnswer> Answer { get; set; } = new List<ModuleContentAnswer>();
 }

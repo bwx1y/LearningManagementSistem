@@ -18,4 +18,5 @@ public class User
 
     public virtual ICollection<Course> CoursesTaught { get; set; } = new List<Course>();
     public virtual ICollection<Enrollment> Enrollment { get; set; } = new List<Enrollment>();
+    public virtual ICollection<ModuleContentAnswer> ModuleContentAnswer { get; set; } = new List<ModuleContentAnswer>();
 }
