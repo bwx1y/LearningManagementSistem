@@ -1,4 +1,4 @@
-namespace LearningManagementSystem.Api.Configuration;
+namespace LearningManagementSystem.Application.Configuration;
 
 public class JwtConfiguration
 {

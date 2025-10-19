@@ -1,9 +1,10 @@
 using System.Text;
+using LearningManagementSystem.Application.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
-namespace LearningManagementSystem.Api.Configuration;
+namespace LearningManagementSystem.Api.Extention;
 
 public static class ConJwtExtensions
 {
@@ -42,8 +43,8 @@ public static class ConJwtExtensions
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Name = "Authorization",
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = "Bearer",
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
                 BearerFormat = "JWT",
                 In = ParameterLocation.Header,
                 Description = "Enter JWT token here. Example: Bearer {token}"

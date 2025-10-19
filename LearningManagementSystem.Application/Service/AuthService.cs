@@ -1,14 +1,15 @@
-using LearningManagementSystem.Api.Configuration;
+using LearningManagementSystem.Application.Configuration;
 using LearningManagementSystem.Application.DTO.Auth;
+using LearningManagementSystem.Application.Extention;
 using LearningManagementSystem.Application.Interface;
 using LearningManagementSystem.Infrastructure.Persistence;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace LearningManagementSystem.Application.Service;
 
-public class AuthService(LmsDbContext context, IConfiguration configuration): IAuthService
+public class AuthService(LmsDbContext context, IOptions<JwtConfiguration> jwtConfig): IAuthService
 {
     public async Task<LoginResponse?> Login(string email, string password)
     {
@@ -18,13 +19,9 @@ public class AuthService(LmsDbContext context, IConfiguration configuration): IA
         bool verified = BCrypt.Net.BCrypt.Verify(password, findUser.Password);
         if (!verified) return null;
 
-        var key = configuration.GetValue<string>("JwtSettings:Key");
-        var duration = configuration.GetValue<int>("JwtSettings:DurationInMinutes");
-        var hoursToExpire = (int) Math.Ceiling((double) duration /60);
-
-        if (key == null || duration == 0 || hoursToExpire == 0) return null;
+        if (jwtConfig.Value.Key.Length == 0 || jwtConfig.Value.DurationInMinutes == 0) return null;
         
-        var token = findUser.GenerateToken(key, hoursToExpire);
+        var token = findUser.GenerateToken(jwtConfig.Value);
         
         var response = findUser.Adapt<LoginResponse>();
         response.Token = token;

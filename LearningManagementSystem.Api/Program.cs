@@ -1,10 +1,8 @@
-using LearningManagementSystem.Api.Configuration;
 using LearningManagementSystem.Api.Extention;
 using LearningManagementSystem.Application.Interface;
 using LearningManagementSystem.Domain.Entity;
 using LearningManagementSystem.Domain.Enum;
 using LearningManagementSystem.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
