@@ -31,4 +31,11 @@ public class CourseService(LmsDbContext context): ICourseService
     {
         return await context.Course.Include(f => f.Teacher).FirstOrDefaultAsync(f => f.Id == id && f.Enrollment.Any(x => x.UserId == studentId));
     }
+
+    public async Task<Course> Create(Course course)
+    {
+        var entity = await context.Course.AddAsync(course);
+        await context.SaveChangesAsync();
+        return entity.Entity;
+    }
 }

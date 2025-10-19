@@ -49,6 +49,15 @@ namespace LearningManagementSystem.Api.Controllers
 
             return Ok(find.Adapt<CourseResponse>());
         }
-        
+
+        [HttpPost, Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Create([FromBody] CourseRequest request)
+        {
+            var entity = await courseService.Create(request.Adapt<Course>());
+            
+            return Created("", entity.Adapt<CourseResponse>());
+        }
+
+
     }
 }

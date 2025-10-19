@@ -9,4 +9,5 @@ public interface ICourseService
     public Task<List<Course>> GetAllByStudent(Guid studentId);
     public Task<Course?> GetById(Guid id);
     public Task<Course?> GetByIdAndByStudent(Guid studentId, Guid id);
+    public Task<Course> Create(Course course);
 }
