@@ -45,4 +45,10 @@ public class CourseService(LmsDbContext context): ICourseService
         await context.SaveChangesAsync();
         return entity.Entity;
     }
+
+    public async Task Delete(Course course)
+    {
+        context.Course.Remove(course);
+        await context.SaveChangesAsync();
+    }
 }

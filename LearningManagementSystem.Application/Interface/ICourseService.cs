@@ -11,4 +11,5 @@ public interface ICourseService
     public Task<Course?> GetByIdAndByStudent(Guid studentId, Guid id);
     public Task<Course> Create(Course course);
     public Task<Course> Update(Course course);
+    public Task Delete(Course course);
 }
