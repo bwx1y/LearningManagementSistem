@@ -58,6 +58,20 @@ namespace LearningManagementSystem.Api.Controllers
             return Created("", entity.Adapt<CourseResponse>());
         }
 
+        [HttpPut("{id}"), Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] CourseRequest request)
+        {
+            var find = await courseService.GetById(id);
+            if (find == null)
+            {
+                return this.ValidationError("Course", "Course not found", StatusCodes.Status404NotFound, "Course not found");
+            }
 
+            var entity = await courseService.Update(request.Adapt(find));
+            
+            return Ok(entity.Adapt<CourseResponse>());
+        }
+        
+        
     }
 }

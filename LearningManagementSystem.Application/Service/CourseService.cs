@@ -38,4 +38,11 @@ public class CourseService(LmsDbContext context): ICourseService
         await context.SaveChangesAsync();
         return entity.Entity;
     }
+
+    public async Task<Course> Update(Course course)
+    {
+        var entity = context.Course.Update(course);
+        await context.SaveChangesAsync();
+        return entity.Entity;
+    }
 }
