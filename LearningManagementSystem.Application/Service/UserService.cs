@@ -17,6 +17,15 @@ public class UserService(LmsDbContext context) : IUserService
         return await query.ToListAsync();
     }
 
+    public async Task<List<User>> GetAllByCourseId(Guid courseId)
+    {
+        var query = context.User.AsQueryable();
+        
+        query = query.Where(f => f.CoursesTaught.Any(x => x.Id == courseId));
+        
+        return await query.ToListAsync();
+    }
+
     public async Task<User?> FindById(Guid id)
     {
         return await context.User.FirstOrDefaultAsync(f => f.Id == id);

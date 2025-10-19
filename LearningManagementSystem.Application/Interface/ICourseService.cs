@@ -12,4 +12,6 @@ public interface ICourseService
     public Task<Course> Create(Course course);
     public Task<Course> Update(Course course);
     public Task Delete(Course course);
+    public Task<bool> CreateEnrollment(User user, Course course);
+    public Task DeleteEnrollment(User user, Course course);
 }

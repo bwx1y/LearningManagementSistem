@@ -51,4 +51,28 @@ public class CourseService(LmsDbContext context): ICourseService
         context.Course.Remove(course);
         await context.SaveChangesAsync();
     }
+
+    public async Task<bool> CreateEnrollment(User user, Course course)
+    {
+        var find = context.Enrollment.Any(f => f.UserId == user.Id && f.CourseId == course.Id);
+        if (find) return false;
+
+        context.Enrollment.Add(new Enrollment
+        {
+            UserId = user.Id,
+            CourseId = course.Id,
+            EnrollmentDate = DateTime.Now
+        });
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task DeleteEnrollment(User user, Course course)
+    {
+        var find = await context.Enrollment.FirstOrDefaultAsync(f => f.UserId ==  user.Id && f.CourseId == course.Id);
+        if (find == null) return;
+        
+        context.Enrollment.Remove(find);
+        await context.SaveChangesAsync();
+    }
 }
