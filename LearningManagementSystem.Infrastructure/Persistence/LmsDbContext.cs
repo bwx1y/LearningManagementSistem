@@ -8,6 +8,7 @@ public class LmsDbContext(DbContextOptions<LmsDbContext> options) : DbContext(op
     public DbSet<User> User { get; set; }
     public DbSet<Course> Course { get; set; }
     public DbSet<ModuleContent> ModuleContent { get; set; }
+    public DbSet<ModuleContentAnswer> ModuleContentAnswer { get; set; }
     public DbSet<Enrollment> Enrollment { get; set; }
     public DbSet<Module> Module { get; set; }
     public DbSet<Quiz> Quiz { get; set; }
