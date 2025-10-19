@@ -32,4 +32,16 @@ public class UserService (LmsDbContext context): IUserService
         
         return res.Entity;
     }
+
+    public async Task<User> Update(User user, string? newPassword = null)
+    {
+        if (!string.IsNullOrEmpty(newPassword))
+        {
+            user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+        }
+        
+        var updated = context.User.Update(user);
+        await context.SaveChangesAsync();
+        return updated.Entity;
+    }
 }
