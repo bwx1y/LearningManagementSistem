@@ -8,9 +8,6 @@ public class Quiz
 {
     [Key] public Guid Id { get; set; } = Guid.NewGuid();
 
-    public Guid ModuleId { get; set; }
-    public virtual Module Module { get; set; } = null!;
-
     public required string Title { get; set; }
 
     public required DateTime StartTime { get; set; }

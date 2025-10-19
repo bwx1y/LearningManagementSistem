@@ -7,6 +7,7 @@ public class LmsDbContext(DbContextOptions<LmsDbContext> options) : DbContext(op
 {
     public DbSet<User> User { get; set; }
     public DbSet<Course> Course { get; set; }
+    public DbSet<ModuleContent> ModuleContent { get; set; }
     public DbSet<Enrollment> Enrollment { get; set; }
     public DbSet<Module> Module { get; set; }
     public DbSet<Quiz> Quiz { get; set; }
@@ -42,11 +43,26 @@ public class LmsDbContext(DbContextOptions<LmsDbContext> options) : DbContext(op
             .WithMany(c => c.Module)
             .HasForeignKey(m => m.CourseId);
 
-        // Module - Quiz => One-to-Many
-        modelBuilder.Entity<Quiz>()
-            .HasOne(q => q.Module)
-            .WithMany(m => m.Quizze)
-            .HasForeignKey(q => q.ModuleId);
+        // === Relasi Module -> ModuleContent (One-to-Many) ===
+        modelBuilder.Entity<ModuleContent>()
+            .HasOne(mc => mc.Module)
+            .WithMany(m => m.Content)   // pastikan di Module: public ICollection<ModuleContent> Contents { get; set; }
+            .HasForeignKey(mc => mc.ModuleId)
+            .OnDelete(DeleteBehavior.Cascade); // kalau module dihapus, kontennya ikut terhapus
+
+        // === Relasi ModuleContent -> Quiz (Optional One-to-One) ===
+        modelBuilder.Entity<ModuleContent>()
+            .HasOne(mc => mc.Quiz)
+            .WithMany() // quiz tidak perlu tahu module content, jadi tanpa navigation
+            .HasForeignKey(mc => mc.QuizId)
+            .OnDelete(DeleteBehavior.SetNull); // kalau quiz dihapus, kontennya tetap ada tapi tanpa quiz
+
+        // === Relasi Course -> Module (One-to-Many) ===
+        modelBuilder.Entity<Module>()
+            .HasOne(m => m.Course)
+            .WithMany(c => c.Module) // pastikan di Course: public ICollection<Module> Modules { get; set; }
+            .HasForeignKey(m => m.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         // Quiz - Choice => One-to-Many
         modelBuilder.Entity<Choice>()
