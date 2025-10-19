@@ -25,7 +25,6 @@ public class AuthService(LmsDbContext context, IOptions<JwtConfiguration> jwtCon
         
         var response = findUser.Adapt<LoginResponse>();
         response.Token = token;
-        response.Role =  findUser.Role.ToString();
         
         return response;
     }
