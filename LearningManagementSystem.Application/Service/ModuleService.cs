@@ -1,3 +1,4 @@
+using LearningManagementSystem.Application.DTO.Module;
 using LearningManagementSystem.Application.Interface;
 using LearningManagementSystem.Domain.Entity;
 using LearningManagementSystem.Infrastructure.Persistence;
@@ -19,8 +20,55 @@ public class ModuleService(LmsDbContext context) : IModuleService
         return entity;
     }
 
-    public Task<Module> Create(Guid courseId, Module module)
+    public async Task<Module> Create(Guid courseId, Module module)
     {
-        return null;
+        module.CourseId = courseId;
+        
+        var entity = await context.Module.AddAsync(module);
+        await context.SaveChangesAsync();
+        
+        return entity.Entity;
+    }
+
+    public async Task<Module> Update(Module module, ModuleUpdateRequest request)
+    {
+        module.Title = request.Title;
+        module.Order = request.Order;
+        
+        request.Content.ForEach(f =>
+        {
+            var findContent = module.Content.FirstOrDefault(x => x.Id == f.Id);
+            if (findContent != null)
+            {
+                findContent.Order = f.Order;
+                findContent.QuizId = f.QuizId;
+                findContent.LinkUrl = f.LinkUrl;
+                findContent.TextContent =  f.TextContent;
+                findContent.Type = f.Type;
+                
+            }
+            else
+            {
+                module.Content.Add(new ModuleContent
+                {
+                    ModuleId = module.Id,
+                    Type = f.Type,
+                    LinkUrl = f.LinkUrl,
+                    QuizId = f.QuizId,
+                    Order = f.Order,
+                    TextContent = f.TextContent,
+                });
+            }
+        });
+        
+        var entity = context.Module.Update(module);
+        await context.SaveChangesAsync();
+        return entity.Entity;
+    }
+
+    public async Task Delete(Module module)
+    {
+        context.Module.Remove(module);
+        await context.SaveChangesAsync();
     }
 }

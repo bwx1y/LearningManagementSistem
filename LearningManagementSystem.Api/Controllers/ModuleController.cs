@@ -2,6 +2,7 @@ using LearningManagementSystem.Api.Extention;
 using LearningManagementSystem.Application.DTO.Module;
 using LearningManagementSystem.Application.Interface;
 using LearningManagementSystem.Domain.Entity;
+using LearningManagementSystem.Domain.Enum;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -33,12 +34,59 @@ namespace LearningManagementSystem.Api.Controllers
                     statusCode: StatusCodes.Status404NotFound,
                     title: "Not found"
                 );
+
+            foreach (var item in request.Content)
+            {
+                switch (item.Type)
+                {
+                    case ContentType.Quiz: 
+                        if (item.QuizId == null) return this.ValidationError(
+                            key: "QuizId",
+                            message: "QuizId is required",
+                            statusCode: StatusCodes.Status400BadRequest,
+                            title: "Validation Error"
+                        );
+                        break;
+                    case ContentType.Link: 
+                        if (item.LinkUrl == null) return this.ValidationError(
+                            key: "LinkUrl",
+                            message: "LinkUrl is required",
+                            statusCode: StatusCodes.Status400BadRequest,
+                            title: "Validation Error"
+                        );
+                        break;
+                    case ContentType.Text:
+                        if (item.TextContent == null) return this.ValidationError(
+                            key: "TextContent",
+                            message: "TextContent is required",
+                            statusCode: StatusCodes.Status400BadRequest,
+                            title: "Validation Error"
+                        );
+                        break;
+                }
+            }
             
             var entity = await moduleService.Create(find.Id, request.Adapt<Module>());
             
             return Created("", entity.Adapt<ModuleResponse>());
         }
 
-        
+        [HttpPut("{id}/Module/{moduleId}")]
+        [Authorize(Roles = "Teacher")]
+        public async Task<IActionResult> UpdateModule(Guid id, Guid moduleId, ModuleUpdateRequest request)
+        {
+            var find = await moduleService.GetByIdAndByCourseId(courseId: id, moduleId: moduleId);
+            if (find == null)
+                return this.ValidationError(
+                    key: "Module",
+                    message: "Module not found",
+                    statusCode: StatusCodes.Status404NotFound,
+                    title: "Not found"
+                );
+
+            var entity = await moduleService.Update(find, request);
+            
+            return Ok(entity.Adapt<ModuleResponse>());
+        }
     }
 }
