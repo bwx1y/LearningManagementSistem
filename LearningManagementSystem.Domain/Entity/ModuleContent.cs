@@ -9,7 +9,6 @@ public class ModuleContent
 {
     [Key]
     public Guid Id { get; set; } = Guid.NewGuid();
-
     public required Guid ModuleId { get; set; }
     public virtual Module Module { get; set; } = null!;
 

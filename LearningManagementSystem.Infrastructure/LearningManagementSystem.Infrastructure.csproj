@@ -9,7 +9,6 @@
     <ItemGroup>
         <Folder Include="Configuration\"/>
         <Folder Include="Repository\"/>
-        <Folder Include="Service\"/>
     </ItemGroup>
 
     <ItemGroup>
