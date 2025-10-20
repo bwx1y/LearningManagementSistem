@@ -5,7 +5,6 @@ using LearningManagementSystem.Domain.Entity;
 using LearningManagementSystem.Domain.Enum;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LearningManagementSystem.Api.Controllers
@@ -87,6 +86,27 @@ namespace LearningManagementSystem.Api.Controllers
             var entity = await moduleService.Update(find, request);
             
             return Ok(entity.Adapt<ModuleResponse>());
+        }
+
+        [HttpDelete("{id}/Module/{moduleId}")]
+        [Authorize(Roles = "Teacher")]
+        public async Task<IActionResult> DeleteModule(Guid id, Guid moduleId)
+        {
+            var findEntity = await moduleService.GetByIdAndByCourseId(id, moduleId);
+            if (findEntity == null)
+                return this.ValidationError(
+                    key: "Module",
+                    message: "Module not found",
+                    statusCode: StatusCodes.Status404NotFound,
+                    title: "Not found"
+                );
+
+            await moduleService.Delete(findEntity);
+
+            return Ok(new
+            {
+                Message = "Module deleted"
+            });
         }
     }
 }
