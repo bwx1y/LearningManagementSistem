@@ -10,10 +10,17 @@ public class ModuleService(LmsDbContext context) : IModuleService
 {
     public async Task<List<Module>> GetAll(Guid courseId)
     {
-        return await context.Module.Include(f => f.Content).Where(f => f.CourseId == courseId).OrderBy(f => f.Order)
+        return await context.Module
+            .Include(m => m.Content)
+            .ThenInclude(c => c.Answer)
+            .Include(m => m.Content)
+            .ThenInclude(c => c.Quiz)
+            .ThenInclude(q => q.QuizAttempt) // ✅ Tambah ini!
+            .Where(m => m.CourseId == courseId)
+            .OrderBy(m => m.Order)
             .ToListAsync();
     }
-
+    
     public async Task<Module?> GetByIdAndByCourseId(Guid courseId, Guid moduleId)
     {
         var entity = await context.Module.Include(f => f.Content).FirstOrDefaultAsync(f => f.Id == moduleId && f.CourseId == courseId);

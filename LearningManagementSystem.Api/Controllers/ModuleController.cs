@@ -7,106 +7,148 @@ using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LearningManagementSystem.Api.Controllers
+namespace LearningManagementSystem.Api.Controllers;
+
+[Route("api/Course")]
+[ApiController]
+public class ModuleController(IModuleService moduleService, ICourseService courseService) : ControllerBase
 {
-    [Route("api/Course")]
-    [ApiController]
-    public class ModuleController(IModuleService moduleService, ICourseService courseService) : ControllerBase
+    [HttpGet("{id}/Module")]
+    [Authorize(Roles = "Student,Teacher")]
+    public async Task<IActionResult> GetModule(Guid id)
     {
-        [HttpGet("{id}/Module")]
-        [Authorize(Roles = "Student,Teacher")]
-        public async Task<IActionResult> GetModule(Guid id)
-        {
-            var entity = await moduleService.GetAll(id);
-            return Ok(entity.Adapt<List<ModuleResponse>>());
-        }
+        var userId = User.GetUserId();
+        var role = User.GetRole();
 
-        [HttpPost("{id}/Module")]
-        [Authorize(Roles = "Teacher")]
-        public async Task<IActionResult> CreateModule(Guid id, ModuleRequest request)
-        {
-            var find = await courseService.GetById(id);
-            if (find == null)
-                return this.ValidationError(
-                    key: "Course",
-                    message: "Course not found",
-                    statusCode: StatusCodes.Status404NotFound,
-                    title: "Not found"
-                );
+        var entity = await moduleService.GetAll(id);
+        if (role == Role.Teacher) return Ok(entity.Adapt<List<ModuleResponse>>());
 
-            foreach (var item in request.Content)
+        var response = entity.Select(item => new ModuleUserResponse
+        {
+            Id = item.Id,
+            Order = item.Order,
+            Title = item.Title,
+            Content = item.Content.Select(f =>
             {
-                switch (item.Type)
+                bool done = false;
+                switch (f.Type)
                 {
-                    case ContentType.Quiz: 
-                        if (item.QuizId == null) return this.ValidationError(
-                            key: "QuizId",
-                            message: "QuizId is required",
-                            statusCode: StatusCodes.Status400BadRequest,
-                            title: "Validation Error"
-                        );
+                    case ContentType.File:
+                        done = f.Answer.Any(a => a.UserId == userId);
                         break;
-                    case ContentType.Link: 
-                        if (item.LinkUrl == null) return this.ValidationError(
-                            key: "LinkUrl",
-                            message: "LinkUrl is required",
-                            statusCode: StatusCodes.Status400BadRequest,
-                            title: "Validation Error"
-                        );
+
+                    case ContentType.Quiz:
+                        done = f.Quiz != null &&
+                               f.Quiz.QuizAttempt.Any(a => a.UserId == userId);
                         break;
+
+                    case ContentType.Link:
                     case ContentType.Text:
-                        if (item.TextContent == null) return this.ValidationError(
-                            key: "TextContent",
-                            message: "TextContent is required",
-                            statusCode: StatusCodes.Status400BadRequest,
-                            title: "Validation Error"
-                        );
+                        done = false;
                         break;
                 }
-            }
-            
-            var entity = await moduleService.Create(find.Id, request.Adapt<Module>());
-            
-            return Created("", entity.Adapt<ModuleResponse>());
-        }
 
-        [HttpPut("{id}/Module/{moduleId}")]
-        [Authorize(Roles = "Teacher")]
-        public async Task<IActionResult> UpdateModule(Guid id, Guid moduleId, ModuleUpdateRequest request)
-        {
-            var find = await moduleService.GetByIdAndByCourseId(courseId: id, moduleId: moduleId);
-            if (find == null)
-                return this.ValidationError(
-                    key: "Module",
-                    message: "Module not found",
-                    statusCode: StatusCodes.Status404NotFound,
-                    title: "Not found"
-                );
+                return new ModuleContentUserResponse
+                {
+                    Type = f.Type,
+                    Id = f.Id,
+                    Order = f.Order,
+                    QuizId = f.QuizId,
+                    LinkUrl = f.LinkUrl,
+                    TextContent = f.TextContent,
+                    Done = done
+                };
+            }).ToList()
+        }).ToList();
+        return Ok(response);
+    }
 
-            var entity = await moduleService.Update(find, request);
-            
-            return Ok(entity.Adapt<ModuleResponse>());
-        }
+    [HttpPost("{id}/Module")]
+    [Authorize(Roles = "Teacher")]
+    public async Task<IActionResult> CreateModule(Guid id, ModuleRequest request)
+    {
+        var find = await courseService.GetById(id);
+        if (find == null)
+            return this.ValidationError(
+                "Course",
+                "Course not found",
+                StatusCodes.Status404NotFound,
+                "Not found"
+            );
 
-        [HttpDelete("{id}/Module/{moduleId}")]
-        [Authorize(Roles = "Teacher")]
-        public async Task<IActionResult> DeleteModule(Guid id, Guid moduleId)
-        {
-            var findEntity = await moduleService.GetByIdAndByCourseId(id, moduleId);
-            if (findEntity == null)
-                return this.ValidationError(
-                    key: "Module",
-                    message: "Module not found",
-                    statusCode: StatusCodes.Status404NotFound,
-                    title: "Not found"
-                );
-
-            await moduleService.Delete(findEntity);
-
-            return Ok(new
+        foreach (var item in request.Content)
+            switch (item.Type)
             {
-                Message = "Module deleted"
-            });
-        }
+                case ContentType.Quiz:
+                    if (item.QuizId == null)
+                        return this.ValidationError(
+                            "QuizId",
+                            "QuizId is required",
+                            StatusCodes.Status400BadRequest,
+                            "Validation Error"
+                        );
+                    break;
+                case ContentType.Link:
+                    if (item.LinkUrl == null)
+                        return this.ValidationError(
+                            "LinkUrl",
+                            "LinkUrl is required",
+                            StatusCodes.Status400BadRequest,
+                            "Validation Error"
+                        );
+                    break;
+                case ContentType.Text:
+                    if (item.TextContent == null)
+                        return this.ValidationError(
+                            "TextContent",
+                            "TextContent is required",
+                            StatusCodes.Status400BadRequest,
+                            "Validation Error"
+                        );
+                    break;
+            }
+
+        var entity = await moduleService.Create(find.Id, request.Adapt<Module>());
+
+        return Created("", entity.Adapt<ModuleResponse>());
+    }
+
+    [HttpPut("{id}/Module/{moduleId}")]
+    [Authorize(Roles = "Teacher")]
+    public async Task<IActionResult> UpdateModule(Guid id, Guid moduleId, ModuleUpdateRequest request)
+    {
+        var find = await moduleService.GetByIdAndByCourseId(id, moduleId);
+        if (find == null)
+            return this.ValidationError(
+                "Module",
+                "Module not found",
+                StatusCodes.Status404NotFound,
+                "Not found"
+            );
+
+        var entity = await moduleService.Update(find, request);
+
+        return Ok(entity.Adapt<ModuleResponse>());
+    }
+
+    [HttpDelete("{id}/Module/{moduleId}")]
+    [Authorize(Roles = "Teacher")]
+    public async Task<IActionResult> DeleteModule(Guid id, Guid moduleId)
+    {
+        var findEntity = await moduleService.GetByIdAndByCourseId(id, moduleId);
+        if (findEntity == null)
+            return this.ValidationError(
+                "Module",
+                "Module not found",
+                StatusCodes.Status404NotFound,
+                "Not found"
+            );
+
+        await moduleService.Delete(findEntity);
+
+        return Ok(new
+        {
+            Message = "Module deleted"
+        });
     }
 }
