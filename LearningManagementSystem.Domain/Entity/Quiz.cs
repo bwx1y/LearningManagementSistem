@@ -12,7 +12,6 @@ public class Quiz
 
     public required DateTime StartTime { get; set; }
     public required DateTime EndTime { get; set; }
-
-    public virtual ICollection<Choice> Choice { get; set; } = new List<Choice>();
+    public virtual ICollection<QuizQuestion> Question { get; set; } = new List<QuizQuestion>();
     public virtual ICollection<QuizAttempt> QuizAttempt { get; set; } = new List<QuizAttempt>();
 }

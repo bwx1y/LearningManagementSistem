@@ -80,10 +80,12 @@ public class LmsDbContext(DbContextOptions<LmsDbContext> options) : DbContext(op
             .OnDelete(DeleteBehavior.Cascade);
 
         // Quiz - Choice => One-to-Many
-        modelBuilder.Entity<Choice>()
-            .HasOne(c => c.Quiz)
-            .WithMany(q => q.Choice)
-            .HasForeignKey(c => c.QuizId);
+        modelBuilder.Entity<QuizQuestion>()
+            .HasOne(q => q.Quiz)
+            .WithMany(z => z.Question)
+            .HasForeignKey(q => q.QuizId)
+            .OnDelete(DeleteBehavior.Cascade);
+
 
         // QuizAttempt - QuizAnswer => One-to-Many
         modelBuilder.Entity<QuizAnswer>()
