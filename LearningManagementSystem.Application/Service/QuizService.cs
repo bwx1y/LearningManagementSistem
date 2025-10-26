@@ -41,7 +41,15 @@ public class QuizService(LmsDbContext context): IQuizService
         return entity.Entity;
     }
 
-    public async Task Update(Guid id, QuizRequest quiz)
+    public async Task Update(Quiz quiz)
     {
+        context.Quiz.Update(quiz);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task Delete(Quiz quiz)
+    {
+        context.Quiz.Remove(quiz);
+        await context.SaveChangesAsync();
     }
 }

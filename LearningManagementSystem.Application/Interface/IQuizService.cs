@@ -7,5 +7,6 @@ public interface IQuizService
 {
     Task<Quiz?> GetOne(Guid quizId);
     Task<Quiz> Create(QuizRequest quiz);
-    Task Update(Guid id, QuizRequest quiz);
+    Task Update(Quiz quiz);
+    Task Delete(Quiz quiz);
 }
