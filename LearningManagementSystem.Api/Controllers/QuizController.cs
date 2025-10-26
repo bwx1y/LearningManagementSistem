@@ -33,10 +33,13 @@ namespace LearningManagementSystem.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Teacher,Student")]
-        public async Task<IActionResult> CreateQuiz()
+        [Authorize(Roles = "Teacher")]
+        public async Task<IActionResult> CreateQuiz(QuizRequest req)
         {
-            return Created("", new {});
+            var entity = await quizService.Create(req);
+            
+            return Created("", entity.Adapt<QuizTeacherResponse>());
         }
+        
     }
 }

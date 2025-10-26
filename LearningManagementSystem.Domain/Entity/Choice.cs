@@ -10,7 +10,7 @@ public class Choice
     public Guid Id { get; set; } = Guid.NewGuid();
 
     // Relasi ke pertanyaan
-    public required Guid QuestionId { get; set; }
+    public Guid QuestionId { get; set; }
     public virtual QuizQuestion Question { get; set; } = null!;
 
     public required string Text { get; set; }
