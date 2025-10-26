@@ -2,6 +2,7 @@ using LearningManagementSystem.Api.Extention;
 using LearningManagementSystem.Application.DTO.Auth;
 using LearningManagementSystem.Application.Interface;
 using LearningManagementSystem.Application.Service;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,6 +40,6 @@ public class AuthController(IAuthService authService, IUserService userService) 
                 title: "not login"
             );
         
-        return Ok(user);
+        return Ok(user.Adapt<MeResponse>());
     }
 }
