@@ -1,0 +1,40 @@
+﻿version: '3.9'
+
+services:
+  backend:
+    image: learningmanagementsystem.api
+    build:
+      context: .
+      dockerfile: LearningManagementSystem.Api/Dockerfile
+    container_name: lms-backend
+    restart: always
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=server=mysql;port=3306;database=lms_db;user=root;password=123456
+    depends_on:
+      - mysql
+    networks:
+      - lms-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: lms-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_DATABASE: lms_db
+      MYSQL_USER: lms_user
+      MYSQL_PASSWORD: lms_pass
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - lms-network
+
+networks:
+  lms-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

@@ -1,0 +1,21 @@
+# This is a generated file. Not intended for manual editing.
+version: "3.9"
+services:
+  backend:
+    build:
+      context: "/media/LearningManagementSystem"
+      dockerfile: "LearningManagementSystem.Api/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net8.0/LearningManagementSystem.Api.dll"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "learningmanagementsystem.api:dev"
+    ports: []
+    volumes:
+    - "/media/LearningManagementSystem/LearningManagementSystem.Api:/app:rw"
+    - "/media/LearningManagementSystem:/src:rw"
+    - "/home/bwx1y/.nuget/packages:/home/app/.nuget/packages"
+    working_dir: "/app"
