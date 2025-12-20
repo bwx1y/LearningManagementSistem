@@ -28,6 +28,7 @@ public class ModuleController(IModuleService moduleService, ICourseService cours
             Id = item.Id,
             Order = item.Order,
             Title = item.Title,
+            CratedAt = item.CratedAt,
             Content = item.Content.Select(f =>
             {
                 bool done = false;
@@ -60,6 +61,7 @@ public class ModuleController(IModuleService moduleService, ICourseService cours
                 };
             }).ToList()
         }).ToList();
+        
         return Ok(response);
     }
 
@@ -75,39 +77,7 @@ public class ModuleController(IModuleService moduleService, ICourseService cours
                 StatusCodes.Status404NotFound,
                 "Not found"
             );
-
-        foreach (var item in request.Content)
-            switch (item.Type)
-            {
-                case ContentType.Quiz:
-                    if (item.QuizId == null)
-                        return this.ValidationError(
-                            "QuizId",
-                            "QuizId is required",
-                            StatusCodes.Status400BadRequest,
-                            "Validation Error"
-                        );
-                    break;
-                case ContentType.Link:
-                    if (item.LinkUrl == null)
-                        return this.ValidationError(
-                            "LinkUrl",
-                            "LinkUrl is required",
-                            StatusCodes.Status400BadRequest,
-                            "Validation Error"
-                        );
-                    break;
-                case ContentType.Text:
-                    if (item.TextContent == null)
-                        return this.ValidationError(
-                            "TextContent",
-                            "TextContent is required",
-                            StatusCodes.Status400BadRequest,
-                            "Validation Error"
-                        );
-                    break;
-            }
-
+        
         var entity = await moduleService.Create(find.Id, request.Adapt<Module>());
 
         return Created("", entity.Adapt<ModuleResponse>());

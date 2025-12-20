@@ -1,4 +1,4 @@
-import axios, {AxiosError, AxiosInstance, AxiosResponse} from "axios";
+import axios, {AxiosError, AxiosInstance, AxiosResponse, InternalAxiosRequestConfig} from "axios";
 import Cookies from 'js-cookie';
 
 interface ApiErrorResponse {
@@ -11,16 +11,10 @@ interface ApiErrorResponse {
     }
 }
 
-interface ReturnResponse<T> {
-    status: number;
-    message: string;
-    data: T
-}
-
 class Api {
     private readonly api: AxiosInstance;
 
-    constructor(baseUrl: string) {
+    constructor(public readonly baseUrl: string) {
         this.api = axios.create({
             baseURL: baseUrl
         });
@@ -45,6 +39,11 @@ class Api {
         this.api.interceptors.response.use(
             (response) => response,
             (error: AxiosError) => {
+
+                if (error.response?.status == 403) {
+                    window.location.href = "/"
+                }
+                
                 if (!error.parse) {
                     error.parse = () => this.parseError(error);
                 }
@@ -74,8 +73,10 @@ class Api {
         }
     }
 
-    public get<T>(url: string): Promise<AxiosResponse<T>> {
-        return this.api.get<T>(url);
+    public get<T>(url: string, params?: unknown): Promise<AxiosResponse<T>> {
+        return this.api.get<T>(url, {
+            params: params
+        });
     }
     
     public post<Request, Response>(url: string, data: Request): Promise<AxiosResponse<Response>> {
@@ -85,7 +86,7 @@ class Api {
         return this.api.put<Response>(url, data);
     }
     
-    public delete<Request, Response>(url: string): Promise<AxiosResponse<Response>> {
+    public delete<Response>(url: string): Promise<AxiosResponse<Response>> {
         return this.api.delete<Response>(url);
     }
 }

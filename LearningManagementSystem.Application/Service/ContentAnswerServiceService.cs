@@ -4,7 +4,7 @@ using LearningManagementSystem.Infrastructure.Persistence;
 
 namespace LearningManagementSystem.Application.Service;
 
-public class ContentAnswerService(LmsDbContext context): IContentAnswer
+public class ContentAnswerServiceService(LmsDbContext context): IContentAnswerService
 {
     public async Task<ModuleContentAnswer> Answer(ModuleContentAnswer answer)
     {

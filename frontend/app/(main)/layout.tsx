@@ -4,6 +4,9 @@ import "@/style/globals.css";
 import {Provider} from "@/app/provider";
 import React from "react";
 import {Toaster} from "@/components/ui/sonner";
+import {AppSidebar} from "@/components/navigation-menu/app-sidebar";
+import {SidebarInset, SidebarProvider} from "@/components/ui/sidebar";
+import {SiteHeader} from "@/components/site-header";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -33,7 +36,20 @@ export default function RootLayout({
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         >
         <Toaster position={"top-right"}/>
-        <Provider>{children}</Provider>
+        <Provider><SidebarProvider
+            style={
+                {
+                    "--sidebar-width": "calc(var(--spacing) * 72)",
+                    "--header-height": "calc(var(--spacing) * 12)",
+                } as React.CSSProperties
+            }
+        >
+            <AppSidebar variant="inset"/>
+            <SidebarInset>
+                <SiteHeader/>
+                {children}
+            </SidebarInset>
+        </SidebarProvider></Provider>
         </body>
         </html>
     );

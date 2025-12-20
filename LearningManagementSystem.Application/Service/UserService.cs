@@ -19,11 +19,11 @@ public class UserService(LmsDbContext context) : IUserService
 
     public async Task<List<User>> GetAllByCourseId(Guid courseId)
     {
-        var query = context.User.AsQueryable();
+        var query = context.Enrollment.Include(f => f.User).AsQueryable();
         
-        query = query.Where(f => f.CoursesTaught.Any(x => x.Id == courseId));
+        query = query.Where(f => f.CourseId == courseId);
         
-        return await query.ToListAsync();
+        return await query.Select(f => f.User).ToListAsync();
     }
 
     public async Task<User?> FindById(Guid id)

@@ -1,12 +1,13 @@
 using LearningManagementSystem.Application.DTO.Quiz;
 using LearningManagementSystem.Application.Interface;
 using LearningManagementSystem.Domain.Entity;
+using LearningManagementSystem.Domain.Enum;
 using LearningManagementSystem.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace LearningManagementSystem.Application.Service;
 
-public class QuizService(LmsDbContext context): IQuizService
+public class QuizService(LmsDbContext context, IContentService contentService): IQuizService
 {
     public async Task<Quiz?> GetOne(Guid quizId)
     {
@@ -17,7 +18,12 @@ public class QuizService(LmsDbContext context): IQuizService
         return entity;
     }
 
-    public async Task<Quiz> Create(QuizRequest data)
+    public async Task<bool> Accepted(Guid userId, Guid quizId)
+    {
+        return await context.QuizAttempt.AnyAsync(f => f.QuizId == quizId && f.UserId == userId);
+    }
+
+    public async Task<Quiz> Create(QuizRequest data, Guid moduleId, Guid courseId)
     {
         var quiz = new Quiz
         {
@@ -36,6 +42,15 @@ public class QuizService(LmsDbContext context): IQuizService
         };
         
         var entity = await context.Quiz.AddAsync(quiz);
+
+        await contentService.Create(new ModuleContent
+        {
+            ModuleId = moduleId,
+            Type = ContentType.Quiz,
+            TextContent = data.Title,
+            QuizId = entity.Entity.Id
+        }, courseId);
+        
         await context.SaveChangesAsync();
         
         return entity.Entity;

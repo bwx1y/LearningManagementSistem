@@ -19,5 +19,6 @@ public class QuizUserResponse
     public required string Title { get; set; }
     public required DateTime StartTime { get; set; }
     public required DateTime EndTime { get; set; }
+    public required bool Accepted { get; set; }
     public virtual List<QuizUserQuestionResponse> Question { get; set; } = new();
 }

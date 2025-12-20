@@ -13,4 +13,12 @@ export type LoginResponse = {
     name: string
     role: Role,
     token: string
+    refreshToken: string
+}
+
+export type MeResponse = {
+    id: string
+    email: string
+    name: string
+    role: Role  
 }

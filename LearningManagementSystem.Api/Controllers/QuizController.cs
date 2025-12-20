@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LearningManagementSystem.Api.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/Course/{courseId}/Module/{moduleId}/[controller]")]
     [ApiController]
     public class QuizController(IQuizService quizService) : ControllerBase
     {
@@ -26,18 +26,27 @@ namespace LearningManagementSystem.Api.Controllers
                     message: "Not found",
                     key: "Quiz",
                     statusCode: StatusCodes.Status404NotFound
-                ); 
-            
-            if (role == Role.Student) return Ok(entity.Adapt<QuizUserResponse>());
+                );
+
+            if (role == Role.Student)
+            {
+                var response = entity.Adapt<QuizUserResponse>();
+                
+                var userId = User.GetUserId();
+                
+                response.Accepted = await quizService.Accepted(userId: userId, quizId: id);
+                
+                return Ok(response);
+            }
 
             return Ok(entity.Adapt<QuizTeacherResponse>());
         }
 
         [HttpPost]
         [Authorize(Roles = "Teacher")]
-        public async Task<IActionResult> CreateQuiz(QuizRequest req)
+        public async Task<IActionResult> CreateQuiz(QuizRequest req, Guid courseId, Guid moduleId)
         {
-            var entity = await quizService.Create(req);
+            var entity = await quizService.Create(req, moduleId, courseId);
             
             return Created("", entity.Adapt<QuizTeacherResponse>());
         }
@@ -68,7 +77,7 @@ namespace LearningManagementSystem.Api.Controllers
                     
                     find.Text = item.Text;
 
-                    foreach (var choiceRequest in item.Choice.Slice(0, 4))
+                    foreach (var choiceRequest in item.Choice.Take(4))
                     {
                         var choice = find.Choice.FirstOrDefault(f => f.Id == choiceRequest.Id);
                         if (choice == null) continue;

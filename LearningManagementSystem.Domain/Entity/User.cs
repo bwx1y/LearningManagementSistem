@@ -13,7 +13,6 @@ public class User
     public required string Name { get; set; }
     public required string Email { get; set; }
     public required string Password { get; set; }
-
     [DefaultValue(Role.Student)] public Role Role { get; set; } = Role.Student;
 
     public virtual ICollection<Course> CoursesTaught { get; set; } = new List<Course>();

@@ -15,7 +15,7 @@ public class ModuleService(LmsDbContext context) : IModuleService
             .ThenInclude(c => c.Answer)
             .Include(m => m.Content)
             .ThenInclude(c => c.Quiz)
-            .ThenInclude(q => q.QuizAttempt) // ✅ Tambah ini!
+            .ThenInclude(q => q.QuizAttempt)
             .Where(m => m.CourseId == courseId)
             .OrderBy(m => m.Order)
             .ToListAsync();
@@ -31,6 +31,10 @@ public class ModuleService(LmsDbContext context) : IModuleService
     {
         module.CourseId = courseId;
         
+        int moduleCount = await context.Module.CountAsync(item => item.CourseId == courseId);
+        
+        module.Order = moduleCount + 1;
+        
         var entity = await context.Module.AddAsync(module);
         await context.SaveChangesAsync();
         
@@ -40,33 +44,6 @@ public class ModuleService(LmsDbContext context) : IModuleService
     public async Task<Module> Update(Module module, ModuleUpdateRequest request)
     {
         module.Title = request.Title;
-        module.Order = request.Order;
-        
-        request.Content.ForEach(f =>
-        {
-            var findContent = module.Content.FirstOrDefault(x => x.Id == f.Id);
-            if (findContent != null)
-            {
-                findContent.Order = f.Order;
-                findContent.QuizId = f.QuizId;
-                findContent.LinkUrl = f.LinkUrl;
-                findContent.TextContent =  f.TextContent;
-                findContent.Type = f.Type;
-                
-            }
-            else
-            {
-                module.Content.Add(new ModuleContent
-                {
-                    ModuleId = module.Id,
-                    Type = f.Type,
-                    LinkUrl = f.LinkUrl,
-                    QuizId = f.QuizId,
-                    Order = f.Order,
-                    TextContent = f.TextContent,
-                });
-            }
-        });
         
         var entity = context.Module.Update(module);
         await context.SaveChangesAsync();

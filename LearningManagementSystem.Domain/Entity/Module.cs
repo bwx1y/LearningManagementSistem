@@ -10,6 +10,7 @@ public class Module
     public Guid Id { get; set; } = Guid.NewGuid();
     public required string Title { get; set; }
     public int Order { get; set; }
+    public DateTime CratedAt { get; set; } = DateTime.Now;
     public required Guid CourseId { get; set; }
     public virtual Course Course { get; set; } = null!;
     public virtual ICollection<ModuleContent> Content { get; set; } = new List<ModuleContent>();

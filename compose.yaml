@@ -13,8 +13,13 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=server=mysql;port=3306;database=lms_db;user=root;password=123456
+      - Storage__Endpoint=storage:9000
+      - Storage__AccessKey=myadmin
+      - Storage__SecretKey=mystrongpassword123
+      - Storage__WithSSL=false
     depends_on:
       - mysql
+      - storage
     networks:
       - lms-network
 
@@ -31,6 +36,22 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - lms-network
+        
+  storage:
+    image: quay.io/minio/minio
+    container_name: lms-minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: myadmin
+      MINIO_ROOT_PASSWORD: mystrongpassword123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - lms-network
 
 networks:
   lms-network:
@@ -38,3 +59,4 @@ networks:
 
 volumes:
   mysql_data:
+  minio_data:

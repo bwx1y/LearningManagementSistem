@@ -42,4 +42,5 @@ public class AuthController(IAuthService authService, IUserService userService) 
         
         return Ok(user.Adapt<MeResponse>());
     }
+    
 }

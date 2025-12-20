@@ -53,9 +53,6 @@ export function LoginForm(props: React.ComponentProps<"div">) {
                             </Field>
                             <Field>
                                 <Button type="submit" disabled={isSubmitting}>Login</Button>
-                                <Button variant="outline" type="button" disabled={isSubmitting}>
-                                    Login with Google
-                                </Button>
                             </Field>
                         </FieldGroup>
                     </form>

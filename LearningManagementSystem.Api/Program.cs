@@ -1,3 +1,4 @@
+using System.Globalization;
 using LearningManagementSystem.Api.Extention;
 using LearningManagementSystem.Application.Interface;
 using LearningManagementSystem.Domain.Entity;
@@ -10,6 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddJwtConfiguration(builder.Configuration);
 
+builder.Services
+    .AddMinioService(builder.Configuration)
+    .AdaptApplicationServices();
+
 builder.Services.AddDbContext<LmsDbContext>(options =>
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
@@ -21,8 +26,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AdaptApplicationServices();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
 
