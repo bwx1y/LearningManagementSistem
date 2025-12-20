@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload to MinIO</title>
+</head>
+<body>
+
+<h2>Upload File to MinIO</h2>
+
+<input type="file" id="fileInput" />
+<button id="uploadBtn">Upload</button>
+
+<p id="status"></p>
+
+<img id="image-result"/>
+
+<script>
+    // 1. Request presigned URL dari backend
+    async function requestPresignedUrl(fileName) {
+        const response = await fetch("http://localhost:5175/api/Upload/Request", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ fileName })
+        });
+
+        const data = await response.json();
+        return data; // pastikan backend mengembalikan { url: "..." }
+    }
+
+    // 2. Upload file ke presigned URL
+    async function uploadToMinIO(presignedUrl, file, fields) {
+        const form = new FormData();
+        Object.keys(fields).forEach(key => {
+            form.append(key, fields[key]);
+        });
+        form.append("file", file);
+        
+        // File / Blob sudah bisa dikirim langsung tanpa konversi ke Uint8Array
+        const res = await fetch(presignedUrl, {
+            method: "POST",
+            body: form
+        });
+        
+        return res;
+    }
+    
+
+    // 3. Event handler tombol Upload
+    document.getElementById("uploadBtn").onclick = async () => {
+        const fileInput = document.getElementById("fileInput");
+        const status = document.getElementById("status");
+
+        if (!fileInput.files.length) {
+            status.innerText = "Please choose a file.";
+            return;
+        }
+
+        const file = fileInput.files[0];
+        status.innerText = "Requesting presigned URL...";
+
+        try {
+            if (!file.type.includes("image")) {
+                alert("Please upload image.");
+                return
+            }
+            const presignedUrl = await requestPresignedUrl(file.name);
+            status.innerText = "Uploading file...";
+
+            const uploadResponse = await uploadToMinIO(presignedUrl.url, file, presignedUrl.fields);
+
+            if (uploadResponse.ok) {
+                
+                status.innerText = `Upload successful!`;
+            } else {
+
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(await uploadResponse.text(), "application/xml");
+                
+                const message = xml.querySelector("Message")?.textContent;
+                
+                status.innerText = message ? message : `Error Status: ${uploadResponse.status}`;
+            }
+        } catch (err) {
+            console.error(err);
+            status.innerText = "Error: " + err;
+        }
+    };
+</script>
+
+</body>
+</html>

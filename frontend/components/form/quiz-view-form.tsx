@@ -49,7 +49,8 @@ export const QuizViewForm = (props: QuizViewFormProps) => {
                         </div>
                         <span className="font-medium">{item.text}</span>
                     </div>))}
-
+                    
+                    
                     <div className="w-full flex justify-between mt-5">
                         <Button variant="outline" onClick={prevPage}><ChevronLeft/></Button>
                         {(props.data.question[props.data.question.length - 1].id == findQuestion().id) ?
