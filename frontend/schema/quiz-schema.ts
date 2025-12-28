@@ -74,3 +74,14 @@ export const QuizRequest = z.object({
 )
 
 export type QuizRequest = z.infer<typeof QuizRequest>
+
+export type QuizAnswerRequest = {
+    questionId: string,
+    choiceId: string
+}
+
+export type QuizAnswerResponse = {
+    name: string,
+    email: string,
+    score: number
+}

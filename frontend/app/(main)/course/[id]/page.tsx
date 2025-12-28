@@ -11,17 +11,25 @@ import {Button} from "@/components/ui/button";
 import {Plus} from "lucide-react";
 import {CardModule} from "@/components/card/card-module";
 import {ModuleForm} from "@/components/form/module-form";
+import AuthService from "@/service/auth-service";
+import {Role} from "@/schema/enum/role";
 
 export default function CourseByIdPage() {
     const {id} = useParams();
+    const {data: user, isLoading} = AuthService.me()
     const [module, setModule] = useState<ModuleResponse[]>([]);
     const [createModule, setCreateModule] = useState<boolean>(false)
+    const [allowAdd, setAllowAdd] = useState<boolean>(false)
 
     useEffect(() => {
         if (id) ModuleService.getAll(id.toString())
             .then((res) => {
                 setModule(res)
             })
+        
+        if (!isLoading && user?.role == Role.Teacher) {
+            setAllowAdd(true)
+        }
     }, [id])
 
     if (!id) return (<div className="p-8 space-y-6">
@@ -45,13 +53,13 @@ export default function CourseByIdPage() {
                 }}
             />}
 
-            <Card>
+            {allowAdd && (<Card>
                 <CardContent className="flex justify-end w-full">
                     <CardAction>
                         <Button onClick={() => setCreateModule(true)}><Plus/></Button>
                     </CardAction>
                 </CardContent>
-            </Card>
+            </Card>)}
         </div>
     );
 }

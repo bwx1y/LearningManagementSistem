@@ -33,3 +33,15 @@ export const ContentFileRequest = z.object({
 export type ContentFileRequest = z.infer<typeof ContentFileRequest>
 
 export type ContentRequest = ContentTextRequest | ContentLinkRequest | ContentFileRequest
+
+export type ContentAnswerResponse = {
+    id: string
+    urlFile: string
+}
+
+export type ContentAnswerTeacherResponse = {
+    id: string,
+    name: string,
+    email: string,
+    fileUrl: string
+}

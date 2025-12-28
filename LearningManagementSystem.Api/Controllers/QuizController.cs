@@ -7,119 +7,122 @@ using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LearningManagementSystem.Api.Controllers
+namespace LearningManagementSystem.Api.Controllers;
+
+[Route("api/Course/{courseId}/Module/{moduleId}/[controller]")]
+[ApiController]
+public class QuizController(IQuizService quizService) : ControllerBase
 {
-    [Route("api/Course/{courseId}/Module/{moduleId}/[controller]")]
-    [ApiController]
-    public class QuizController(IQuizService quizService) : ControllerBase
+    [HttpGet("{id}")]
+    [Authorize(Roles = "Teacher,Student")]
+    public async Task<IActionResult> GetQuiz(Guid id)
     {
-        [HttpGet("{id}")]
-        [Authorize(Roles = "Teacher,Student")]
-        public async Task<IActionResult> GetQuiz(Guid id)
+        var role = User.GetRole();
+
+        var entity = await quizService.GetOne(id);
+        if (entity == null)
+            return this.ValidationError(
+                title: "Not found",
+                message: "Not found",
+                key: "Quiz",
+                statusCode: StatusCodes.Status404NotFound
+            );
+
+        if (role == Role.Student)
         {
-            var role = User.GetRole();
-            
-            var entity = await quizService.GetOne(id);
-            if (entity == null)
-                return this.ValidationError(
-                    title: "Not found",
-                    message: "Not found",
-                    key: "Quiz",
-                    statusCode: StatusCodes.Status404NotFound
-                );
+            var response = entity.Adapt<QuizUserResponse>();
 
-            if (role == Role.Student)
-            {
-                var response = entity.Adapt<QuizUserResponse>();
-                
-                var userId = User.GetUserId();
-                
-                response.Accepted = await quizService.Accepted(userId: userId, quizId: id);
-                
-                return Ok(response);
-            }
+            var userId = User.GetUserId();
 
-            return Ok(entity.Adapt<QuizTeacherResponse>());
+            response.Accepted = await quizService.Accepted(userId, id);
+
+            return Ok(response);
         }
 
-        [HttpPost]
-        [Authorize(Roles = "Teacher")]
-        public async Task<IActionResult> CreateQuiz(QuizRequest req, Guid courseId, Guid moduleId)
+        return Ok(entity.Adapt<QuizTeacherResponse>());
+    }
+
+    [HttpGet("{id}/Result")]
+    [Authorize(Roles = "Teacher")]
+    public async Task<IActionResult> GetResults(Guid id)
+    {
+        var entity = await quizService.GetOne(id);
+        if (entity == null)
+            return this.ValidationError(
+                title: "Not found",
+                message: "Not found",
+                key: "Quiz",
+                statusCode: StatusCodes.Status404NotFound
+            );
+
+        var value = await quizService.GetResult(id);
+        
+        return Ok(value);
+    }
+
+    [HttpPost("{id}/Result")]
+    [Authorize(Roles = "Student")]
+    public async Task<IActionResult> CreateResult(Guid id, List<QuizResultRequest> req)
+    {
+        var userId = User.GetUserId();
+        
+        var entity = await quizService.GetOne(id);
+        if (entity == null)
+            return this.ValidationError(
+                title: "Not found",
+                message: "Not found",
+                key: "Quiz",
+                statusCode: StatusCodes.Status404NotFound
+            );
+
+        await quizService.CreateResult(userId, id, req);
+        
+        return Ok(new
         {
-            var entity = await quizService.Create(req, moduleId, courseId);
-            
-            return Created("", entity.Adapt<QuizTeacherResponse>());
-        }
+            Message = "Success",
+        });
+    }
+    
+    [HttpPost]
+    [Authorize(Roles = "Teacher")]
+    public async Task<IActionResult> CreateQuiz(QuizRequest req, Guid courseId, Guid moduleId)
+    {
+        var entity = await quizService.Create(req, moduleId, courseId);
 
-        [HttpPut("{id}")]
-        [Authorize(Roles = "Teacher")]
-        public async Task<IActionResult> UpdateQuiz(Guid id, QuizUpdateRequest req)
-        {
-            var entity = await quizService.GetOne(id);
-            if (entity == null)
-                return this.ValidationError(
-                    title: "Not found",
-                    message: "Not found",
-                    key: "Quiz",
-                    statusCode: StatusCodes.Status404NotFound
-                );
-            
-            entity.EndTime = req.EndTime;
-            entity.StartTime = req.StartTime;
-            entity.Title =  req.Title;
+        return Created("", entity.Adapt<QuizTeacherResponse>());
+    }
 
-            foreach (var item in req.Question)
-            {
-                if (item.Id != null || item.Id != Guid.Empty)
-                {
-                    var find = entity.Question.FirstOrDefault(x => x.Id == item.Id);
-                    if (find == null) continue;
-                    
-                    find.Text = item.Text;
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Teacher")]
+    public async Task<IActionResult> UpdateQuiz(Guid id, QuizUpdateRequest req)
+    {
+        var entity = await quizService.GetOne(id);
+        if (entity == null)
+            return this.ValidationError(
+                title: "Not found",
+                message: "Quiz not found",
+                key: "Quiz",
+                statusCode: StatusCodes.Status404NotFound
+            );
+        await quizService.Update(id, req);
+        return Ok(entity.Adapt<QuizTeacherResponse>());
+    }
 
-                    foreach (var choiceRequest in item.Choice.Take(4))
-                    {
-                        var choice = find.Choice.FirstOrDefault(f => f.Id == choiceRequest.Id);
-                        if (choice == null) continue;
-                        
-                        choice.Text = choiceRequest.Text;
-                        choice.IsCorrect = choiceRequest.IsCorrect;
-                    }
-                }
-                else
-                {
-                    entity.Question.Add(new QuizQuestion
-                    {
-                        Text = item.Text,
-                        Choice = item.Choice.Select(f => new Choice
-                        {
-                            Text = f.Text,
-                            IsCorrect = f.IsCorrect
-                        }).ToList()
-                    });
-                }
-            }
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Teacher")]
+    public async Task<IActionResult> DeleteQuiz(Guid id)
+    {
+        var entity = await quizService.GetOne(id);
+        if (entity == null)
+            return this.ValidationError(
+                title: "Not found",
+                message: "Not found",
+                key: "Quiz",
+                statusCode: StatusCodes.Status404NotFound
+            );
 
-            await quizService.Update(entity);
-            return Ok(entity.Adapt<QuizTeacherResponse>());
-        }
+        await quizService.Delete(entity);
 
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "Teacher")]
-        public async Task<IActionResult> DeleteQuiz(Guid id)
-        {
-            var entity = await quizService.GetOne(id);
-            if (entity == null)
-                return this.ValidationError(
-                    title: "Not found",
-                    message: "Not found",
-                    key: "Quiz",
-                    statusCode: StatusCodes.Status404NotFound
-                );
-
-            await quizService.Delete(entity);
-
-            return Ok(new { Message = "Success delete" });
-        }
+        return Ok(new { Message = "Success delete" });
     }
 }

@@ -1,7 +1,11 @@
 import {ModuleRequest, ModuleResponse} from "@/schema/module-schema";
 import {api} from "@/lib/api";
-import {ContentRequest, ContentResponse} from "@/schema/content-schema";
-import {QuizRequest, QuizResponse} from "@/schema/quiz-schema";
+import {
+    ContentAnswerResponse,
+    ContentAnswerTeacherResponse,
+    ContentRequest,
+    ContentResponse
+} from "@/schema/content-schema";
 
 class ModuleService {
 
@@ -23,6 +27,25 @@ class ModuleService {
 
     public async deleteContent(courseId: string, moduleId: string, id: string): Promise<void> {
         await api.delete(`Course/${courseId}/Module/${moduleId}/Content/${id}`)
+    }
+
+    public async getContentAnswers(courseId: string, moduleId: string, contentId: string): Promise<ContentAnswerResponse | null> {
+        return api.get<ContentAnswerResponse | null>(`Course/${courseId}/Module/${moduleId}/Content/${contentId}/Answer`)
+            .then(res => res.data)
+            .catch(() => null)
+    }
+
+    public async getTeacherContentAnswers(courseId: string, moduleId: string, contentId: string): Promise<ContentAnswerTeacherResponse[]> {
+        return api.get<ContentAnswerTeacherResponse[]>(`Course/${courseId}/Module/${moduleId}/Content/${contentId}/Answer`)
+            .then(res => res.data)
+    }
+
+    public async saveContentAnswer(courseId: string, moduleId: string, contentId: string, fileUrl: string) {
+        return api.post<{
+            urlFile: string
+        }, ContentAnswerResponse>(`Course/${courseId}/Module/${moduleId}/Content/${contentId}/Answer`, {
+            urlFile: fileUrl,
+        }).then(res => res.data)
     }
 }
 

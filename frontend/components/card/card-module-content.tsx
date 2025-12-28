@@ -67,6 +67,19 @@ export function CardModuleContent(props: CardModuleContentProps) {
                         <Button onClick={() => setAction(ButtonType.Delete)} variant="outline"><Trash/></Button>)}
                 </ItemActions>
             </Item>
+        
+        case ContentType.File: 
+            return <Item variant="outline" className="mb-4">
+                <ItemContent>
+                    <ItemTitle>{props.content.textContent}</ItemTitle>
+                </ItemContent>
+                <ItemActions>
+                    <Button variant="outline" asChild>
+                        <Link
+                            href={`/course/${props.courserId}/${props.moduleId}/${props.content.id}`}>Go</Link>
+                    </Button>
+                </ItemActions>
+            </Item>
 
         case ContentType.Text:
         default:

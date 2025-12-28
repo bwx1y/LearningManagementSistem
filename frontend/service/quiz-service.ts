@@ -1,4 +1,4 @@
-import {QuizRequest, QuizResponse, QuizUserResponse} from "@/schema/quiz-schema";
+import {QuizAnswerRequest, QuizAnswerResponse, QuizRequest, QuizResponse, QuizUserResponse} from "@/schema/quiz-schema";
 import {api} from "@/lib/api";
 
 class QuizService {
@@ -31,6 +31,16 @@ class QuizService {
     
     public update(courseId: string, moduleId: string, quizId: string, req: QuizRequest) {
         return api.put<QuizRequest, QuizResponse>(`Course/${courseId}/Module/${moduleId}/Quiz/${quizId}`, req)
+            .then(response => response.data)
+    }
+    
+    public answer(courseId: string, moduleId: string, quizId: string, req: QuizAnswerRequest[]) {
+        return api.post<QuizAnswerRequest[], {message: string}>(`Course/${courseId}/Module/${moduleId}/Quiz/${quizId}/Result`, req)
+            .then(response => response.data)
+    }
+    
+    public getAnswer(courseId: string, moduleId: string, quizId: string): Promise<QuizAnswerResponse[]> {
+        return api.get<QuizAnswerResponse[]>(`Course/${courseId}/Module/${moduleId}/Quiz/${quizId}/Result`)
             .then(response => response.data)
     }
 }

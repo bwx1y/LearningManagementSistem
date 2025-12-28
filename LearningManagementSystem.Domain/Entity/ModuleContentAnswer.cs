@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 
 namespace LearningManagementSystem.Domain.Entity;
 
@@ -14,6 +15,6 @@ public class ModuleContentAnswer
     
     public Guid UserId { get; set; }
     public virtual User User { get; set; } = null!;
-    
+
     public required string UrlFile { get; set; }
 }

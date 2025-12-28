@@ -12,6 +12,7 @@ public class LmsDbContext(DbContextOptions<LmsDbContext> options) : DbContext(op
     public DbSet<Enrollment> Enrollment { get; set; }
     public DbSet<Module> Module { get; set; }
     public DbSet<Quiz> Quiz { get; set; }
+    public DbSet<QuizQuestion> Question { get; set; }
     public DbSet<Choice> Choice { get; set; }
     public DbSet<QuizAttempt> QuizAttempt { get; set; }
     public DbSet<QuizAnswer> QuizAnswer { get; set; }
@@ -85,25 +86,26 @@ public class LmsDbContext(DbContextOptions<LmsDbContext> options) : DbContext(op
             .WithMany(z => z.Question)
             .HasForeignKey(q => q.QuizId)
             .OnDelete(DeleteBehavior.Cascade);
-
-
-        // QuizAttempt - QuizAnswer => One-to-Many
+        
         modelBuilder.Entity<QuizAnswer>()
             .HasOne(qa => qa.QuizAttempt)
-            .WithMany(qa => qa.QuizAnswer)
-            .HasForeignKey(qa => qa.AttemptId);
-
-        // QuizAnswer - Choice => One-to-One
+            .WithMany(a => a.QuizAnswer)
+            .HasForeignKey(qa => qa.AttemptId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
         modelBuilder.Entity<QuizAnswer>()
             .HasOne(qa => qa.Choice)
             .WithMany()
-            .HasForeignKey(qa => qa.ChoiceId);
+            .HasForeignKey(qa => qa.ChoiceId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        modelBuilder.Entity<QuizAttempt>()
+            .HasIndex(a => new { a.UserId, a.QuizId })
+            .IsUnique();
 
-        // QuizAnswer - Quiz
         modelBuilder.Entity<QuizAnswer>()
-            .HasOne(qa => qa.Quiz)
-            .WithMany()
-            .HasForeignKey(qa => qa.QuizId);
+            .HasIndex(a => new { a.AttemptId, a.ChoiceId })
+            .IsUnique();
         
         modelBuilder.Entity<Enrollment>()
             .HasOne(e => e.User)

@@ -107,7 +107,7 @@ export default function QuizViewPage() {
                         variant={quiz.accepted ? "destructive" : "default"}
                         onClick={() => setStart(true)}
                         disabled={quiz.accepted}>
-                        {quiz.accepted ? "Not Allow" : "Start"}
+                        {quiz.accepted ? "Not Allow (you have sent the answer)" : "Start"}
                     </Button>
 
                     <Button variant="outline" asChild>

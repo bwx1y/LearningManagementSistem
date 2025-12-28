@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import {MouseEventHandler, useEffect} from "react"
 import {
     ColumnDef,
     ColumnFiltersState,
@@ -8,6 +9,7 @@ import {
     getCoreRowModel,
     getFilteredRowModel,
     getSortedRowModel,
+    Row,
     SortingState,
     useReactTable,
     VisibilityState,
@@ -22,30 +24,39 @@ import {
     DropdownMenuContent,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {MouseEventHandler, useEffect} from "react";
 import {useRouter, useSearchParams} from "next/navigation";
 
 interface DatatableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
-    addButton?:  MouseEventHandler<HTMLButtonElement>
+    addButton?: MouseEventHandler<HTMLButtonElement>
+    getRowId?: ((originalRow: TData, index: number, parent?: (Row<TData> | undefined)) => string) | undefined
 }
 
 export function DataTable<TData, TValue>({
                                              columns,
                                              data,
                                              addButton,
+                                             getRowId
                                          }: DatatableProps<TData, TValue>) {
     const router = useRouter()
     const searchParams = useSearchParams()
-    
+    const columnIds = React.useMemo(
+        () => columns.map((c) => c.id).filter(Boolean),
+        [columns]
+    )
+
     const initialFilters: ColumnFiltersState = React.useMemo(() => {
         const entries: ColumnFiltersState = []
+
         for (const [key, value] of searchParams.entries()) {
-            entries.push({ id: key, value })
+            if (columnIds.includes(key)) {
+                entries.push({ id: key, value })
+            }
         }
+
         return entries
-    }, [searchParams])
+    }, [searchParams, columnIds])
 
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(initialFilters)
@@ -61,14 +72,15 @@ export function DataTable<TData, TValue>({
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
+        ...(getRowId ? {getRowId: getRowId} : null)
     })
     useEffect(() => {
-        const params = new URLSearchParams()
+        const params = new URLSearchParams(searchParams.toString())
         columnFilters.forEach((f) => {
             if (f.value) params.set(f.id, String(f.value))
         })
         const queryString = params.toString()
-        router.replace(`?${queryString}`, { scroll: false })
+        router.replace(`?${queryString}`, {scroll: false})
     }, [columnFilters, router])
 
     return (
@@ -149,8 +161,8 @@ export function DataTable<TData, TValue>({
                     </TableHeader>
 
                     <TableBody>
-                        {table.getRowModel().rows.length ? (
-                            table.getRowModel().rows.map((row) => (
+                        {table?.getRowModel()?.rows.length ? (
+                            table?.getRowModel()?.rows.map((row) => (
                                 <TableRow key={row.id}>
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>

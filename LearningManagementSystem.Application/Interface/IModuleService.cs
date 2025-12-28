@@ -9,6 +9,5 @@ public interface IModuleService
     Task<Module?> GetByIdAndByCourseId(Guid courseId, Guid moduleId);
     Task<Module> Create(Guid courseId, Module module);
     Task<Module> Update(Module module, ModuleUpdateRequest request);
-    
     Task Delete(Module module);
 }

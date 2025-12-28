@@ -56,9 +56,69 @@ public class QuizService(LmsDbContext context, IContentService contentService): 
         return entity.Entity;
     }
 
-    public async Task Update(Quiz quiz)
+    public async Task Update(Guid id,QuizUpdateRequest quiz)
     {
-        context.Quiz.Update(quiz);
+        var entity = (await GetOne(id))!;
+        
+        entity.Title = quiz.Title;
+        entity.StartTime = quiz.StartTime;
+        entity.EndTime = quiz.EndTime;
+
+        var listTrash = entity.Question.ToList();
+
+        foreach (var question in quiz.Question)
+        {
+            if (question.Id.HasValue)
+            {
+                var item = entity.Question.FirstOrDefault(f => f.Id == question.Id.Value);
+
+                if (item != null)
+                {
+                    listTrash.Remove(item);
+
+                    item.Text = question.Text;
+                    
+                    var listChoiceTrash = item.Choice.ToList();
+
+                    foreach (var choice in question.Choice)
+                    {
+                        var value = item.Choice.FirstOrDefault(f => f.Id == choice.Id);
+
+                        if (value != null)
+                        {
+                            listChoiceTrash.Remove(value);
+                            
+                            value.Text = choice.Text;
+                            value.IsCorrect = choice.IsCorrect;
+                            
+                            context.Choice.Update(value);
+                        }
+                    }
+                    
+                    context.Question.Update(item);
+                    context.Choice.RemoveRange(listChoiceTrash);
+                }
+            }
+            else
+            {
+                var value = new QuizQuestion
+                {
+                    Text = question.Text,
+                    QuizId = entity.Id,
+                };
+
+                value.Choice = question.Choice.Select(item => new Choice
+                {
+                    Text = item.Text,
+                    IsCorrect = item.IsCorrect,
+                    QuestionId = value.Id
+                }).ToList();
+                
+                context.Question.Add(value);
+            }
+        }
+        
+        context.Question.RemoveRange(listTrash);
         await context.SaveChangesAsync();
     }
 
@@ -66,5 +126,51 @@ public class QuizService(LmsDbContext context, IContentService contentService): 
     {
         context.Quiz.Remove(quiz);
         await context.SaveChangesAsync();
+    }
+
+    public async Task<List<QuizResultResponse>> GetResult(Guid id)
+    {
+        var quiz = await context.Quiz
+            .Include(f => f.Question)
+            .Include(f => f.QuizAttempt)
+            .ThenInclude(f => f.User)
+            .Include(f => f.QuizAttempt)
+            .ThenInclude(f => f.QuizAnswer)
+            .ThenInclude(f => f.Choice)
+            .FirstAsync(f => f.Id == id);
+        
+        return quiz.QuizAttempt.Select(item =>
+        {
+            int correctCount = item.QuizAnswer.Count(f => f.Choice.IsCorrect);
+            int questionCount = quiz.Question.Count;
+            
+            return new QuizResultResponse
+            {
+                Email = item.User.Email,
+                Name = item.User.Name,
+                Score = (double) correctCount / questionCount * 100, 
+            };
+        }).ToList();
+    }
+
+    public async Task<QuizAttempt> CreateResult(Guid userId, Guid id, List<QuizResultRequest> req)
+    {
+        var entity = new QuizAttempt
+        {
+            QuizId = id,
+            UserId = userId,
+            AttemptTime = DateTime.UtcNow,
+        };
+
+        entity.QuizAnswer = req.Select(item => new QuizAnswer
+        {
+            AttemptId = entity.Id,  
+            ChoiceId = item.ChoiceId,
+        }).ToList();
+        
+        await context.QuizAttempt.AddAsync(entity);
+        await context.SaveChangesAsync();
+        
+        return entity;
     }
 }
