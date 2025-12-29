@@ -15,12 +15,20 @@ RUN \
 
 # ===== Build =====
 FROM base AS builder
+
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
 # ===== Production =====
 FROM node:20-alpine AS runner
+
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=9898
