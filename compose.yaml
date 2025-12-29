@@ -11,7 +11,7 @@ services:
     ports:
       - "5000:8080"
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=server=mysql;port=3306;database=lms_db;user=root;password=123456
     depends_on:
       - mysql
@@ -31,6 +31,18 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - lms-network
+        
+  frontend:
+    build: 
+      context: frontend
+      dockerfile: Dockerfile
+    ports:
+      - "9898:9898"
+    environment:
+      NODE_ENV: production
+      JWT_SECRET: ThisIsASecretKeyForJwtTokenExample123!
+      NEXT_PUBLIC_API_URL: http://localhost:5000/api
+      PORT: 9898
 
 networks:
   lms-network:
