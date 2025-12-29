@@ -1,3 +1,5 @@
+"use client"
+
 import {AlertDialogProps} from "@radix-ui/react-alert-dialog";
 import {UserRequest, UserResponse} from "@/schema/user-schema";
 import {
@@ -15,7 +17,6 @@ import {useForm} from "react-hook-form";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Role} from "@/schema/enum/role";
 import UserService from "@/service/user-service";
-
 
 interface UserFormProps extends AlertDialogProps {
     data?: UserResponse;
