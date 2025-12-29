@@ -1,5 +1,5 @@
 ﻿# ===== Base =====
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 
@@ -20,7 +20,7 @@ COPY . .
 RUN npm run build
 
 # ===== Production =====
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=9898
