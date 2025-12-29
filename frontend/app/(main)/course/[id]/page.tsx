@@ -30,7 +30,7 @@ export default function CourseByIdPage() {
         if (!isLoading && user?.role == Role.Teacher) {
             setAllowAdd(true)
         }
-    }, [id])
+    }, [id, isLoading])
 
     if (!id) return (<div className="p-8 space-y-6">
         <Skeleton className="h-10 w-[300px]"/>

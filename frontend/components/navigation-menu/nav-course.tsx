@@ -13,6 +13,8 @@ import {
     useSidebar,
 } from "@/components/ui/sidebar"
 import {LucideIcon, User2} from "lucide-react";
+import AuthService from "@/service/auth-service";
+import {Role} from "@/schema/enum/role";
 
 type NavCourse = {
     items: {
@@ -23,6 +25,7 @@ type NavCourse = {
 }
 
 export function NavCourse({items}: NavCourse) {
+    const {data: user} = AuthService.me()
     const {isMobile} = useSidebar()
 
     return (
@@ -58,12 +61,12 @@ export function NavCourse({items}: NavCourse) {
                                         <span>Open</span>
                                     </a>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
+                                {(user?.role == Role.Admin) && (<DropdownMenuItem asChild>
                                     <a href={item.url + "/user"}>
                                         <User2/>
                                         <span>User</span>
                                     </a>
-                                </DropdownMenuItem>
+                                </DropdownMenuItem>)}
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </SidebarMenuItem>
